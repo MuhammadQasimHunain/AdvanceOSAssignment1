@@ -18,8 +18,8 @@
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
 
 
-pthread_cond_t cond;                                                            
-pthread_mutex_t mutex;   
+pthread_cond_t cond[1024];
+pthread_mutex_t mutex[1024];
 
 
 struct Details
@@ -35,6 +35,13 @@ struct Thread
 	pthread_t threadId;
 	int threadNumber;
 	bool isFree;
+	int socketId;
+};
+
+struct ThreadPool
+{
+	struct Thread threadArr[1024];
+	int totalThreadCount; 
 };
 
 void *handle_request(void *param);
@@ -101,10 +108,10 @@ int main()
 			return 0;
 		}
 
-		struct Details *myDetails = malloc (sizeof(struct Details));
-		myDetails->send_id = new_sd;
-		myDetails->thread_number = threadCount;
-		rv1 = pthread_create(&threads[threadCount++], NULL, handle_request, (void*) myDetails);
+		// struct Details *myDetails = malloc (sizeof(struct Details));
+		// myDetails->send_id = new_sd;
+		// myDetails->thread_number = threadCount;
+		// rv1 = pthread_create(&threads[threadCount++], NULL, handle_request, (void*) myDetails);
 	}
 
 	return 0;
@@ -115,29 +122,26 @@ int main()
 
 void *handle_request(void *param)
 {
-	if (pthread_cond_wait(&cond, &mutex) != 0) {                                  
-    perror("pthread_cond_timedwait() error");                                   
-    // exit(7);                                                                    
-	}                             
-	else {
-		printf("Conditional wait\n");
-	}
-	struct Details *details = (struct Details*)param;
-	if(details == NULL) {
+	struct Thread *threadDetails = (struct Thread*)param;
+	if(threadDetails == NULL) {
 	printf("\nTerminating worker thread\n");
 		return NULL;
 	}
 
-	int new_sd=details->send_id;
+	if (pthread_cond_wait(&cond[threadDetails->threadNumber], &mutex[threadDetails->threadNumber]) != 0) {
+    perror("pthread_cond_timedwait() error");
+    // exit(7);
+	}
+	else {
+		printf("Conditional wait\n");
+	}
+
+	int new_sd=threadDetails->socketId;
 	int recv_id=0;
 	int send_id=0;
 	char fileAddress[1024];
-	char pwd[1024];
-	char nicNo[1024];
-	char name[1024];
-	char pollSymbol[1024];
 	char welcome[1024] = "\n***** Worker thread number : ";
-	printf("%s %d  *****\n", welcome, details->thread_number);
+	printf("%s %d  *****\n", welcome, threadDetails->threadNumber);
 	
 
 	// myReceive(new_sd, fileAddress, 1000, 0); // reveive fileAddress
@@ -155,98 +159,42 @@ void *handle_request(void *param)
 
 
 
-//****************** SENDING FILE send_file function ******************//
-
-void send_file(char *fileName, int new_sd) 
-{
-	char data[1024] ;
-	// char fileName[1024] ;
-
-	char temp[1024];
-
-
-	int send_id;
-	FILE *fileptr = NULL;
-	fileptr = fopen(fileName, "rb"); // read binary mode
-	if(!fileptr)
-	{
-		error("test.pdf could not open in binary mode");
-		return ;
-	}
-	
-	// keep reading from the file until the file is complete
-	while(fread(data, 1, 1000, fileptr) != NULL)
-	{
-		data[1023]='\0';
-//		printf("%s\n", data);
-		send_id = write(new_sd, data ,1000);
-		if(send_id == -1)
-		{
-			printf("Server. Could not send");
-			perror("Server. Could not send");
-//			return 0;
-		}
-
-	}
-	int i=0;
-	for(i=0 ; i<1024 ; i++)
-		data[i] = '\0';
-	send_id = write(new_sd, data ,1024);
-	if(send_id == -1)
-	{
-		error("Server. Could not send");
-		return ;
-	}
-	else
-		printf("%s File Successfully Sent\n", fileName);
-
-	
-	fclose(fileptr);	// closing the file
-
-	
-	// close(s_id);	//closing the socket
-}
-
-
-
-
-
 //****************** THREAD MANAGEMENT ******************//
 
 int createThreadPool(struct Thread *pool)
 {
 
-	if (pthread_mutex_init(&mutex, NULL) != 0) {                                  
-    perror("pthread_mutex_init() error");                                       
-    // exit(1);                                                                    
-  }                                                                             
-                                                                                
-  if (pthread_cond_init(&cond, NULL) != 0) {                                    
-    perror("pthread_cond_init() error");                                        
-    // exit(2);                                                                    
-  }       
-  if (pthread_mutex_lock(&mutex) != 0) {                                        
-    perror("pthread_mutex_lock() error");                                       
-    // exit(6);                                                                    
-  }                    
+
+	for(int i=0 ; i < 102 ; i++) 
+	{
+		if (pthread_mutex_init(&mutex[i], NULL) != 0) {
+	    perror("pthread_mutex_init() error");
+	    // exit(1);
+	  }
+		if (pthread_cond_init(&cond[i], NULL) != 0) {
+		perror("pthread_cond_init() error");
+		// exit(2);
+		}
+		if (pthread_mutex_lock(&mutex[i]) != 0) {
+		perror("pthread_mutex_lock() error");
+		// exit(6);
+		}
+	}
+  	pthread_attr_t attr;
+	pthread_attr_init(&attr); // Required!!!
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+	// pthread_create(&tid, &attr, foo, NULL);
+
 	struct Thread *threadPool = pool;
 	threadPool[0].threadId = 0;
-		struct Details *myDetails = malloc (sizeof(struct Details));
-	// struct Thread singleThread;
-	// 		printf("Cannot create %d th thread\n", threadPool[0].threadId);
-	// 	if (pthread_create(&(threadPool[0].threadId), NULL, handle_request, (void*) myDetails) != 0)
-	// 	{
-	// 		printf("Cannot create %d th thread\n", 1);
-	// 	}
-	// 	else 
-	// 	{
-	// 		printf("Created %d th thread\n", 1);
-	// 	}
 
-	for(int i=0 ; i < 1024 ; i++) 
+	for(int i=0 ; i < 10 ; i++) 
 	{
+		struct Details *myDetails = malloc (sizeof(struct Details));
 		myDetails->thread_number = i;
-		if (pthread_create(&threadPool[i].threadId, NULL, handle_request, (void*) myDetails) != 0)
+		threadPool[i].threadNumber = i;
+		if (pthread_create(&threadPool[i].threadId, &attr, handle_request, (void*) &threadPool[i]) != 0)
 		{
 			printf("Cannot create %d th thread\n", i+1);
 		}
@@ -256,19 +204,78 @@ int createThreadPool(struct Thread *pool)
 		}
 	}
 
-sleep(5);                                                                     
-                                                                                
-  if (pthread_cond_signal(&cond) != 0) {                                        
-    perror("pthread_cond_signal() error");                                      
-    // exit(4);                                                                    
-  }       
-  else {
-  	printf("Sending Signal\n");
-  }                           
-	// pthread_mutex_unlock(&mutex);
+	sleep(3);
+
+	for(int i=0 ; i < 10 ; i++) 
+	{
+		if (pthread_cond_signal(&cond[i]) != 0) {
+		perror("pthread_cond_signal() error");
+		// exit(4);
+		}
+		else {
+			printf("Sending Signal\n");
+		}
+	}
 	return 0;
 
 }
+
+
+//****************** SENDING FILE send_file function ******************//
+
+void send_file(char *fileName, int new_sd)
+{
+    char data[1024] ;
+    // char fileName[1024] ;
+    
+    char temp[1024];
+    
+    
+    int send_id;
+    FILE *fileptr = NULL;
+    fileptr = fopen(fileName, "rb"); // read binary mode
+    if(!fileptr)
+    {
+        error("test.pdf could not open in binary mode");
+        return ;
+    }
+    
+    // keep reading from the file until the file is complete
+    while(fread(data, 1, 1000, fileptr) != NULL)
+    {
+        data[1023]='\0';
+        send_id = write(new_sd, data ,1000);
+        if(send_id == -1)
+        {
+            printf("Server. Could not send");
+            perror("Server. Could not send");
+            //			return 0;
+        }
+        
+    }
+    int i=0;
+    for(i=0 ; i<1024 ; i++)
+        data[i] = '\0';
+    send_id = write(new_sd, data ,1024);
+    if(send_id == -1)
+    {
+        error("Server. Could not send");
+        return ;
+    }
+    else
+        printf("%s File Successfully Sent\n", fileName);
+    
+    
+    fclose(fileptr);	// closing the file
+    
+    
+    // close(s_id);	//closing the socket
+}
+
+
+
+
+
 
 //****************** HELPER FUNCTIONS ******************//
 
