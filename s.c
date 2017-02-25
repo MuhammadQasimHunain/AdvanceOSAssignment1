@@ -71,7 +71,7 @@ int main()
 	struct sockaddr_in my_addr, remote_addr;
 	s_id = socket(PF_INET, SOCK_STREAM, 0);
 	my_addr.sin_family = AF_INET;
-	my_addr.sin_port = htons(5556);	//assigning the port
+	my_addr.sin_port = htons(5555);	//assigning the port
 	my_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	//assigning the self ip address
 
 	if(bind(s_id, (struct sockaddr*)&my_addr, sizeof(my_addr) ) == -1)
@@ -107,6 +107,19 @@ int main()
 			error("Server. Could not accept the request");
 			return 0;
 		}
+			// for(int i=0 ; i < 10 ; i++) 
+	// {
+		threadPool[threadCount].socketId = new_sd;
+		if (pthread_cond_signal(&cond[threadCount]) != 0) {
+		perror("pthread_cond_signal() error");
+		// exit(4);
+		}
+		else {
+			printf("Sending Signal\n");
+		}
+		threadCount++;
+	// }
+
 
 		// struct Details *myDetails = malloc (sizeof(struct Details));
 		// myDetails->send_id = new_sd;
@@ -204,18 +217,7 @@ int createThreadPool(struct Thread *pool)
 		}
 	}
 
-	sleep(3);
 
-	for(int i=0 ; i < 10 ; i++) 
-	{
-		if (pthread_cond_signal(&cond[i]) != 0) {
-		perror("pthread_cond_signal() error");
-		// exit(4);
-		}
-		else {
-			printf("Sending Signal\n");
-		}
-	}
 	return 0;
 
 }

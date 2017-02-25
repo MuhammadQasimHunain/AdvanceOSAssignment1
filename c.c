@@ -41,7 +41,7 @@ int main(int argc, char* argv[] )
 	s_id = socket (PF_INET,SOCK_STREAM,0);
 	if(s_id == -1)
 	{	
-		perror("Client. Could not Assign Socket");
+		perror("Client. Could not Assign Socket\n");
 		return 0;
 	}		
 
@@ -53,16 +53,27 @@ int main(int argc, char* argv[] )
 
 
 	serv_addr.sin_family=AF_INET;
-	serv_addr.sin_port = htons (5556);
+	serv_addr.sin_port = htons (5555);
 	serv_addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
 
-	// requesting to connect using the accept function
-	int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
-	if(connect_id == -1)
+	for(int i=0 ; i < 10 ; i++) 
 	{
-		error("Client. Could not Connect ");
-		return 0;
-	}		
+		// requesting to connect using the accept function
+		int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
+		if(connect_id == -1)
+		{
+			error("Client. Could not Connect. \n");
+			return 0;
+		}
+		s_id = socket (PF_INET,SOCK_STREAM,0);
+		if(s_id == -1)
+		{	
+			perror("Client. Could not Assign Socket.\n");
+			return 0;
+		}		
+
+		sleep(1);
+	}
 
 	//connection has been established till here
 
@@ -84,10 +95,10 @@ int main(int argc, char* argv[] )
 	{
 		// while(1)
 		{
-			s_data[0] = '\0';
-			printf("Enter file address : ");
-			scanf("%s", fileAddress);
-			send_id = mySend(s_id, fileAddress ,1000, 0); //send user name
+			// s_data[0] = '\0';
+			// printf("Enter file address : ");
+			// scanf("%s", fileAddress);
+			// send_id = mySend(s_id, fileAddress ,1000, 0); //send user name
 
 			// printf("Enter password : ");
 			// scanf("%s", pwd);
@@ -99,57 +110,57 @@ int main(int argc, char* argv[] )
 				// break;
 			// }
 		}
-	char data[1024] ;
+	// char data[1024] ;
 
-	char newOutputFileName[1024]= "myOutput";
-	strcat(newOutputFileName, fileAddress);
+	// char newOutputFileName[1024]= "myOutput";
+	// strcat(newOutputFileName, fileAddress);
 
-	FILE *fileptr = fopen(newOutputFileName, "wb"); // write binary mode
-	if(!fileptr)
-	{
-		error("%s could not open in binary mode",newOutputFileName);
-		perror(" could not open file in binary mode");
-		return 0;
-	}
-	 // else
-	 // 	printf("%s Successfully Opened in binary mode\n", outputFile);
-	bool isDataLeft=false;
+	// FILE *fileptr = fopen(newOutputFileName, "wb"); // write binary mode
+	// if(!fileptr)
+	// {
+	// 	error("%s could not open in binary mode",newOutputFileName);
+	// 	perror(" could not open file in binary mode");
+	// 	return 0;
+	// }
+	//  // else
+	//  // 	printf("%s Successfully Opened in binary mode\n", outputFile);
+	// bool isDataLeft=false;
 
-	while(1)
-	{
-		// receiving messages from the server
-		recv_id = read (s_id,data,1000);
+	// while(1)
+	// {
+	// 	// receiving messages from the server
+	// 	recv_id = read (s_id,data,1000);
 
-		if(recv_id == -1 )
-		{
-			error("Client. Some error occured while receiving file\n");
-		//	return 0;
-		}
-		// check if more data has to be received
-		int i=0;
-		for(i=0 ; i<1024 ; i++) {
-			if(data[i] != '\0') {
-				isDataLeft = true;
-				break;
-			}
-		}
-		if(isDataLeft == false) {
-			printf("\n***** File successfully received. *****\n");
-			break;
-		}
+	// 	if(recv_id == -1 )
+	// 	{
+	// 		error("Client. Some error occured while receiving file\n");
+	// 	//	return 0;
+	// 	}
+	// 	// check if more data has to be received
+	// 	int i=0;
+	// 	for(i=0 ; i<1024 ; i++) {
+	// 		if(data[i] != '\0') {
+	// 			isDataLeft = true;
+	// 			break;
+	// 		}
+	// 	}
+	// 	if(isDataLeft == false) {
+	// 		printf("\n***** File successfully received. *****\n");
+	// 		break;
+	// 	}
 
-		termination++;
-	//	printf("%s \n", input);
-		if(recv_id <= 0)
-			break;
-		else
-			fwrite(data, 1, 1000, fileptr);
-	}
+	// 	termination++;
+	// //	printf("%s \n", input);
+	// 	if(recv_id <= 0)
+	// 		break;
+	// 	else
+	// 		fwrite(data, 1, 1000, fileptr);
+	// }
 
-	fclose(fileptr);
+	// fclose(fileptr);
 
 
-		r_data[0] = '\0';
+	// 	r_data[0] = '\0';
 
 
 	}
