@@ -13,9 +13,14 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#define QUIT 				"QUIT"
-#define NEW_CONNECTION 		"NEW-CONNECTION"
+#define QUIT 							"QUIT"
+#define NEW_CONNECTION			 		"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
+
+
+pthread_cond_t cond;                                                            
+pthread_mutex_t mutex;   
+
 
 struct Details
 {
@@ -28,11 +33,14 @@ struct Details
 struct Thread
 {
 	pthread_t threadId;
-	
+	int threadNumber;
+	bool isFree;
 };
 
 void *handle_request(void *param);
 void send_file(char *fileName, int new_sd);
+int createThreadPool(struct Thread *pool);
+
 int myReceive(int socket, char *arr, int length, int flag);
 int mySend(int socket, char *arr, int length, int flag);
 
@@ -48,6 +56,7 @@ int main()
 	int threadCount = 0;
 	char message1[1024] = "Thread1";
 	char message2[1024] = "Thread2";
+	struct Thread threadPool[1024];
 
 	int s_id;
 	char msg[1024];
@@ -70,6 +79,17 @@ int main()
 	int recv_id=0;
 	int send_id=0;
 	char data[1024];
+
+	createThreadPool(threadPool);
+
+		// pthread_create(&threads[0], NULL, handle_request, (void*) NULL);
+		// {
+		// 	printf("Cannot create %d th thread\n", 1);
+		// }
+		// else 
+		// {
+		// 	printf("Created %d th thread\n", 1);
+		// }
 
 	while(1)
 	{
@@ -95,9 +115,18 @@ int main()
 
 void *handle_request(void *param)
 {
-
+	if (pthread_cond_wait(&cond, &mutex) != 0) {                                  
+    perror("pthread_cond_timedwait() error");                                   
+    // exit(7);                                                                    
+	}                             
+	else {
+		printf("Conditional wait\n");
+	}
 	struct Details *details = (struct Details*)param;
-
+	if(details == NULL) {
+	printf("\nTerminating worker thread\n");
+		return NULL;
+	}
 
 	int new_sd=details->send_id;
 	int recv_id=0;
@@ -111,13 +140,13 @@ void *handle_request(void *param)
 	printf("%s %d  *****\n", welcome, details->thread_number);
 	
 
-	myReceive(new_sd, fileAddress, 1000, 0); // reveive fileAddress
-	printf("The file address is : %s\n", fileAddress);
+	// myReceive(new_sd, fileAddress, 1000, 0); // reveive fileAddress
+	// printf("The file address is : %s\n", fileAddress);
 
-	send_file(fileAddress, new_sd);
+	// send_file(fileAddress, new_sd);
 
-	send_id = mySend(new_sd, QUIT ,100, 0);
-	close(new_sd);
+	// send_id = mySend(new_sd, QUIT ,100, 0);
+	// close(new_sd);
 	printf("\nTerminating worker thread\n");
 	return NULL;
 }
@@ -178,6 +207,68 @@ void send_file(char *fileName, int new_sd)
 	// close(s_id);	//closing the socket
 }
 
+
+
+
+
+//****************** THREAD MANAGEMENT ******************//
+
+int createThreadPool(struct Thread *pool)
+{
+
+	if (pthread_mutex_init(&mutex, NULL) != 0) {                                  
+    perror("pthread_mutex_init() error");                                       
+    // exit(1);                                                                    
+  }                                                                             
+                                                                                
+  if (pthread_cond_init(&cond, NULL) != 0) {                                    
+    perror("pthread_cond_init() error");                                        
+    // exit(2);                                                                    
+  }       
+  if (pthread_mutex_lock(&mutex) != 0) {                                        
+    perror("pthread_mutex_lock() error");                                       
+    // exit(6);                                                                    
+  }                    
+	struct Thread *threadPool = pool;
+	threadPool[0].threadId = 0;
+		struct Details *myDetails = malloc (sizeof(struct Details));
+	// struct Thread singleThread;
+	// 		printf("Cannot create %d th thread\n", threadPool[0].threadId);
+	// 	if (pthread_create(&(threadPool[0].threadId), NULL, handle_request, (void*) myDetails) != 0)
+	// 	{
+	// 		printf("Cannot create %d th thread\n", 1);
+	// 	}
+	// 	else 
+	// 	{
+	// 		printf("Created %d th thread\n", 1);
+	// 	}
+
+	for(int i=0 ; i < 1024 ; i++) 
+	{
+		myDetails->thread_number = i;
+		if (pthread_create(&threadPool[i].threadId, NULL, handle_request, (void*) myDetails) != 0)
+		{
+			printf("Cannot create %d th thread\n", i+1);
+		}
+		else 
+		{
+			printf("Created %d th thread\n", i+1);
+		}
+	}
+
+sleep(5);                                                                     
+                                                                                
+  if (pthread_cond_signal(&cond) != 0) {                                        
+    perror("pthread_cond_signal() error");                                      
+    // exit(4);                                                                    
+  }       
+  else {
+  	printf("Sending Signal\n");
+  }                           
+	// pthread_mutex_unlock(&mutex);
+	return 0;
+
+}
 
 //****************** HELPER FUNCTIONS ******************//
 
