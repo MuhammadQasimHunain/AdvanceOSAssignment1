@@ -48,3 +48,10 @@ Temporary Items
 s[A
 myOutputtest
 s[A
+project.pbxproj
+contents.xcworkspacedata
+UserInterfaceState.xcuserstate
+xcschememanagement.plist
+OS A1 client.xcscheme
+OS A1 server.xcscheme
+Breakpoints_v2.xcbkptlist
