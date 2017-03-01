@@ -21,14 +21,15 @@
 #include<netdb.h>
 
 
-#define PORT_NO							5560
+#define PORT_NO							5569
 #define QUIT 							"QUIT"
 #define NEW_CONNECTION			 		"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
-#define BYTES                            1024
+#define BYTES                           1024
+#define MAX_THREAD_COUNT                10240
 
-pthread_cond_t cond[1024];
-pthread_mutex_t mutex[1024];
+pthread_cond_t cond[MAX_THREAD_COUNT];
+pthread_mutex_t mutex[MAX_THREAD_COUNT];
 char *ROOT;
 
 // MARK: - Response constants
@@ -37,14 +38,13 @@ char *ROOT;
 static char* ok_response =
 "HTTP/1.0 200 OK\n"
 "Content-Type: text/html\n"
-"Content-Length: 200\n"
-"\n"
-"<html>\n"
-" <body>\n"
-"  <h1>Server</h1>\n"
-"  <p>This is the response from the server.</p>\n"
-" </body>\n"
-"</html>\n";
+"\n";
+//"<html>\n"
+//" <body>\n"
+//"  <h1>Server</h1>\n"
+//"  <p>This is the response from the server.</p>\n"
+//" </body>\n"
+//"</html>\n";
 
 /* HTTP response, header, and body indicating that the we didn't
  understand the request.  */
@@ -91,14 +91,6 @@ static char* bad_method_response_template =
 
 
 
-struct Details
-{
-	char msg[1024];
-	int recv_id;
-	int send_id;
-	int thread_number;
-};
-
 struct Thread
 {
 	pthread_t threadId;
@@ -109,7 +101,7 @@ struct Thread
 
 struct ThreadPoolManager
 {
-	struct Thread threadArr[1024];
+	struct Thread threadArr[MAX_THREAD_COUNT];
 	int totalThreadCount; 
 };
 
@@ -195,17 +187,22 @@ static void handle_get (int connection_fd, const char* page)
      contain any additional slashes -- we don't support any
      subdirectories.  */
     if (*page == '/' && strchr (page + 1, '/') == NULL) {
-        char module_file_name[64];
+        char file_name[1024];
         
         
         if ( strncmp(page, "/\0", 2)==0 ) {
-            snprintf (module_file_name, sizeof ("/index.html"), "/index.html");
+            snprintf (file_name, sizeof ("index.html"), "index.html");
             //Because if no file is specified, index.html will be opened by default
         }
-        strcpy(path, ROOT);
-        strcpy(&path[strlen(ROOT)], page);
+        else {
+            snprintf (file_name, sizeof (file_name), "%s", page);
+            // removing the "/" on the first index
+            memmove (file_name, file_name+1, strlen (file_name+1) + 1);
+        }
+//        strcpy(path, ROOT);
+//        strcpy(&path[strlen(ROOT)], page);
         
-        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+        if ( (fd=open(file_name, O_RDONLY))!=-1 )    //FILE FOUND
         {
             write (connection_fd, ok_response, strlen (ok_response));
             while ( (bytes_read=read(fd, data_to_send, BYTES-1))>0 )
@@ -227,8 +224,6 @@ static void handle_get (int connection_fd, const char* page)
 //        module = module_open (module_file_name);
     }
     
-    shutdown(connection_fd, SHUT_RDWR);
-    close(connection_fd);
 }
 
 //****************** WORKER THREAD handle_request function ******************//
@@ -237,7 +232,7 @@ void *handle_request(void *param)
 {
 	struct Thread *threadDetails = (struct Thread*)param;
 	if(threadDetails == NULL) {
-	printf("\nTerminating worker thread\n");
+	printf("\nTerminating worker thread \n");
 		return NULL;
 	}
 
@@ -319,8 +314,10 @@ void *handle_request(void *param)
         perror ("read");
 
     // *******************
-    
-	printf("Terminating worker thread\n\n");
+    shutdown(new_sd, SHUT_RDWR);
+    close(new_sd);
+
+	printf("Terminating worker thread no : %d\n\n", threadDetails->threadNumber);
 	return NULL;
 }
 
@@ -328,7 +325,7 @@ void *handle_request(void *param)
 
 int createThreadPool(struct ThreadPoolManager *manager)
 {
-	for(int i=0 ; i < 102 ; i++) 
+	for(int i=0 ; i < MAX_THREAD_COUNT ; i++)
 	{
 		if (pthread_mutex_init(&mutex[i], NULL) != 0) {
 		    perror("pthread_mutex_init() error");
@@ -348,9 +345,9 @@ int createThreadPool(struct ThreadPoolManager *manager)
 	struct Thread *threadPool = manager->threadArr;
 	threadPool[0].threadId = 0;
 
-	for(int i=0 ; i < 10 ; i++) {
-		struct Details *myDetails = malloc (sizeof(struct Details));
-		myDetails->thread_number = i;
+	for(int i=0 ; i < MAX_THREAD_COUNT ; i++) {
+//		struct Details *myDetails = malloc (sizeof(struct Details));
+//		myDetails->thread_number = i;
 		threadPool[i].threadNumber = i;
 		if (pthread_create(&threadPool[i].threadId, &attr, handle_request, (void*) &threadPool[i]) != 0) {
 			printf("Cannot create %d th thread\n", i+1);

@@ -16,7 +16,7 @@
 #include <netdb.h>// #include <conio.h>
 
 
-#define PORT_NO							5560
+#define PORT_NO							5569
 #define QUIT_CONNECTION 				"QUIT"
 #define NEW_CONNECTION 					"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
@@ -25,10 +25,20 @@
 #define MAXLINE 1024
 
 
+struct Details
+{
+    int socket_id;
+    int requests_per_thread;
+    int thread_number;
+};
+
+
+
 int myReceive(int socket, char *arr, int length, int flag);
 int mySend(int socket, char *arr, int length, int flag);
 void parse_command_line_arguments(int argc, char* argv[], int*, int* );
 void create_required_threads();
+void *make_request(void *param);
 int socket_connect(char *host, in_port_t port);
 
 
@@ -42,101 +52,49 @@ int main(int argc, char* argv[] )
 
 	 int totalThreads = 0;
 	 int requestsPerThread = 0;
-
-	 int s_id;
-	 char msg[100] =""; 
-	 int msg_length = 100;
-	 struct sockaddr_in serv_addr;
-	 s_id = socket (PF_INET,SOCK_STREAM,0);
-	 if(s_id == -1)
-	 {	
-	 	perror("Client. Could not Assign Socket\n");
-	 	return 0;
-	 }		
-
-	 // parse_command_line_arguments(argc, argv, &totalThreads, &requestsPerThread);
-  //    printf("The number of threads : %d\n", totalThreads);
-	 // printf("The number of requests per thread : %d\n", requestsPerThread);
-
-	 // create_required_threads();
-
-	 struct hostent *hp;
-	 int on = 0;
-	 if((hp = gethostbyname("www.google.com")) == NULL){
-	 	herror("gethostbyname");
-	 	exit(1);
-	 }
-	 bcopy(hp->h_addr, &serv_addr.sin_addr, hp->h_length);
-
-	 serv_addr.sin_family=AF_INET;
-	 serv_addr.sin_port = htons (5555);
-	 // serv_addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
-	 // serv_addr.sin_addr.s_addr = inet_addr ("www.google.com");
-	 s_id = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	 setsockopt(s_id, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
-
-	 // for(int i=0 ; i < 10 ; i++) 
-	 {
-	 	// requesting to connect using the accept function
-	 	int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
-	 	if(connect_id == -1)
-	 	{
-	 		error("Client. Could not Connect. \n");
-	 		return 0;
-	 	}
-	 	// s_id = socket (PF_INET,SOCK_STREAM,0);
-	 	// if(s_id == -1)
-	 	// {	
-	 	// 	perror("Client. Could not Assign Socket.\n");
-	 	// 	return 0;
-	 	// }		
-
-	 	// sleep(1);
-	 }
-
-	 // int fd;
-	 // char buffer[BUFFER_SIZE];
-
-	 // if(argc < 3){
-	 // 	fprintf(stderr, "Usage: %s <hostname> <port>\n", argv[0]);
-	 // 	exit(1); 
-	 // }
-       
-	 // fd = socket_connect(argv[1], atoi(argv[2])); 
-
-	 //connection has been established till here
+//
+    parse_command_line_arguments(argc, argv, &totalThreads, &requestsPerThread);
+    printf("The number of threads : %d\n", totalThreads);
+    printf("The number of requests per thread : %d\n", requestsPerThread);
+//
+//	 // create_required_threads();
+//
+//	 struct hostent *hp;
+//	 int on = 0;
+//	 if((hp = gethostbyname("www.google.com")) == NULL){
+//	 	herror("gethostbyname");
+//	 	exit(1);
+//	 }
+//	 bcopy(hp->h_addr, &serv_addr.sin_addr, hp->h_length);
+//
+//	 serv_addr.sin_family=AF_INET;
+//	 serv_addr.sin_port = htons (5555);
+//	 // serv_addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
+//	 // serv_addr.sin_addr.s_addr = inet_addr ("www.google.com");
+//	 s_id = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+//	 setsockopt(s_id, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
+//
+//	 // for(int i=0 ; i < 10 ; i++) 
+//	 {
+//	 	// requesting to connect using the accept function
+//	 	int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
+//	 	if(connect_id == -1)
+//	 	{
+//	 		error("Client. Could not Connect. \n");
+//	 		return 0;
+//	 	}
+//	 	// s_id = socket (PF_INET,SOCK_STREAM,0);
+//	 	// if(s_id == -1)
+//	 	// {	
+//	 	// 	perror("Client. Could not Assign Socket.\n");
+//	 	// 	return 0;
+//	 	// }		
+//
+//	 	// sleep(1);
+//	 }
 
 
 
-	 // char sendline[MAXLINE + 1], recvline[MAXLINE + 1];
-	 // char* ptr;
-	 // char poststr[MAXLINE];
-	 // size_t n;
-
-	 // /// Form request
-	 // snprintf(sendline, MAXSUB, 
-	 //      "GET %s HTTP/1.0\r\n"  // POST or GET, both tested and works. Both HTTP 1.0 HTTP 1.1 works, 
-	 //      "Host: %s\r\n"     // but sometimes HTTP 1.0 works better in localhost type
-	 //      "Content-type: application/x-www-form-urlencoded\r\n"
-	 //      "Content-length: %d\r\n\r\n"
-	 //      "%s\r\n", page, host, (unsigned int)strlen(poststr), poststr);
-
-	 // /// Write the request
-	 // if (write(sockfd, sendline, strlen(sendline))>= 0) 
-	 // {
-	 //     /// Read the response
-	 //     while ((n = read(sockfd, recvline, MAXLINE)) > 0) 
-	 //     {
-	 //         recvline[n] = '\0';
-
-	 //         if(fputs(recvline,stdout) == EOF) { cout << ("fputs erros"); }
-	 //         /// Remove the trailing chars
-	 //         ptr = strstr(recvline, "\r\n\r\n");
-
-	 //         // check len for OutResponse here ?
-	 //         snprintf(OutResponse, MAXRESPONSE,"%s", ptr);
-	 //     }          
-	 // }
 
 	 	// while(1)
 //	 	{
@@ -155,62 +113,9 @@ int main(int argc, char* argv[] )
 	 			// break;
 	 		// }
 //	 	}
-	 // char data[1024] ;
-
-	 // char newOutputFileName[1024]= "myOutput";
-	 // strcat(newOutputFileName, fileAddress);
-
-	 // FILE *fileptr = fopen(newOutputFileName, "wb"); // write binary mode
-	 // if(!fileptr)
-	 // {
-	 // 	error("%s could not open in binary mode",newOutputFileName);
-	 // 	perror(" could not open file in binary mode");
-	 // 	return 0;
-	 // }
-	 //  // else
-	 //  // 	printf("%s Successfully Opened in binary mode\n", outputFile);
-	 // bool isDataLeft=false;
-
-	 // while(1)
-	 // {
-	 // 	// receiving messages from the server
-	 // 	recv_id = read (s_id,data,1000);
-
-	 // 	if(recv_id == -1 )
-	 // 	{
-	 // 		error("Client. Some error occured while receiving file\n");
-	 // 	//	return 0;
-	 // 	}
-	 // 	// check if more data has to be received
-	 // 	int i=0;
-	 // 	for(i=0 ; i<1024 ; i++) {
-	 // 		if(data[i] != '\0') {
-	 // 			isDataLeft = true;
-	 // 			break;
-	 // 		}
-	 // 	}
-	 // 	if(isDataLeft == false) {
-	 // 		printf("\n***** File successfully received. *****\n");
-	 // 		break;
-	 // 	}
-
-	 // 	termination++;
-	 // //	printf("%s \n", input);
-	 // 	if(recv_id <= 0)
-	 // 		break;
-	 // 	else
-	 // 		fwrite(data, 1, 1000, fileptr);
-	 // }
-
-	 // fclose(fileptr);
-
-
-	 // 	r_data[0] = '\0';
 
 
 
-		int fd;
-	char buffer[BUFFER_SIZE];
 
 	// if(argc < 3){
 	// 	fprintf(stderr, "Usage: %s <hostname> <port>\n", argv[0]);
@@ -219,24 +124,48 @@ int main(int argc, char* argv[] )
        
 	// fd = socket_connect(argv[1], atoi(argv[2])); 
 	char hostname[1024] = "127.0.0.1";
-	char completeRequest[1024] = "GET / HTTP/1.0\r\n\r\n";
-	fd = socket_connect(hostname, PORT_NO); 
-	write(fd, completeRequest, strlen(completeRequest)); // write(fd, char[]*, len);  
-	bzero(buffer, BUFFER_SIZE);
-	
-    long totalBytesRead = 0;
-    long bytesRead = read(fd, buffer, BUFFER_SIZE - 1);
-	while(bytesRead != 0 && bytesRead != -1){
-        totalBytesRead += bytesRead;
-		fprintf(stderr, "%s", buffer);
-		bzero(buffer, BUFFER_SIZE);
-        bytesRead = read(fd, buffer, BUFFER_SIZE - 1);
-	}
+    struct hostent *hp;
+    struct sockaddr_in addr;
+    int on = 1;
+    int sd; // Socket descriptor that would be used to communicate with the server
     
-    printf("Total bytes received from server : %ld\n", totalBytesRead);
+    if((hp = gethostbyname(hostname)) == NULL){
+        herror("gethostbyname");
+        exit(1);
+    }
+    printf("%s\n",hp->h_name );
+    bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
+    addr.sin_port = htons(PORT_NO);
+    addr.sin_family = AF_INET;
+    
+    pthread_t *allThreads = malloc(sizeof(pthread_t)*totalThreads);
+    for (int i=0; i<totalThreads; i++) {
+        sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
+        
+        if(sd == -1){
+            perror("setsockopt");
+            exit(1);
+        }
+        if(connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1){
+            perror("error on connect... \nSkipping");
+//            exit(1);
+            continue;
+        }
 
-	shutdown(fd, SHUT_RDWR); 
-	close(fd); 
+        struct Details *myDetails = malloc (sizeof(struct Details));
+        myDetails->requests_per_thread = requestsPerThread;
+        myDetails->socket_id = sd;
+        myDetails->thread_number = i;
+        pthread_create(&allThreads[i], NULL, make_request, (void*) myDetails);
+
+    }
+    
+    for (int i=0; i<totalThreads; i++) {
+        pthread_join(allThreads[i], NULL);
+    }
+
+    printf("Exitting from main thread");
 
     return 0;
 }
@@ -244,35 +173,47 @@ int main(int argc, char* argv[] )
 
 //****************** MAKE CONNECTION ******************//
 
-int socket_connect(char *host, in_port_t port){
-	struct hostent *hp;
-	struct sockaddr_in addr;
-	int on = 1, sock;     
+//int socket_connect(char *host, in_port_t port){
+//	return sock;
+//}
 
-	if((hp = gethostbyname(host)) == NULL){
-		herror("gethostbyname");
-		exit(1);
-	}
-	printf("%s\n",hp->h_name );
-	bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
-	addr.sin_port = htons(port);
-	addr.sin_family = AF_INET;
-	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
 
-	if(sock == -1){
-		perror("setsockopt");
-		exit(1);
-	}
-	
-	if(connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1){
-		perror("error on connect");
-		exit(1);
+//****************** CREATE REQUEST ******************//
 
-	}
-	return sock;
+void *make_request(void *param)
+{
+    struct Details *details = (struct Details*)param;
+    if (details == NULL) {
+        exit(4);
+    }
+    
+    int sd = details->socket_id;
+    char buffer[BUFFER_SIZE];
+    char completeRequest[1024] = "GET /index.html HTTP/1.0\r\n\r\n";
+    for (int i=0 ; i<details->requests_per_thread ; i++) {
+        
+        write(sd, completeRequest, strlen(completeRequest));
+        bzero(buffer, BUFFER_SIZE);
+        
+        long totalBytesRead = 0;
+        long bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
+        while(bytesRead != 0 && bytesRead != -1){
+            totalBytesRead += bytesRead;
+            fprintf(stderr, "%s", buffer);
+            bzero(buffer, BUFFER_SIZE);
+            bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
+        }
+        
+        printf("Thread : %d   Request : %d    Total bytes received : %ld\n", details->thread_number, i, totalBytesRead);
+        
+        shutdown(sd, SHUT_RDWR);
+        close(sd);
+
+    }
+    
+    return NULL;
 }
- 
+
 //****************** HELPER FUNCTIONS ******************//
 
 void create_required_threads() 
@@ -315,19 +256,15 @@ void create_required_threads()
 void parse_command_line_arguments(int argc, char* argv[], int *totalThreads, int *requestsPerThread ) 
 {
 
-    char c;    
+//    char c;    
     //Parsing the command line arguments
    if( argc == 3 ) {
      	*totalThreads = atoi(argv[1]);
      	*requestsPerThread = atoi(argv[2]);
    }
-   else if( argc > 3 ) {
-      printf("Too many arguments supplied.\n");
-      exit(1);
-   }
    else {
-      printf("2 arguments expected.\n");
-      exit(1);
+       fprintf(stderr, "Usage : %s <Total-threads> <Requests-per-thread>\n", argv[0]);
+       exit(1);
    }
 }
 
