@@ -197,10 +197,6 @@ static void handle_get (int connection_fd, const char* page)
     if (*page == '/' && strchr (page + 1, '/') == NULL) {
         char module_file_name[64];
         
-        /* The page name looks OK.  Construct the module name by appending
-         ".so" to the page name.  */
-//        snprintf (module_file_name, sizeof (module_file_name),
-//                  "%s.so", page + 1);
         
         if ( strncmp(page, "/\0", 2)==0 ) {
             snprintf (module_file_name, sizeof ("/index.html"), "/index.html");
@@ -208,7 +204,6 @@ static void handle_get (int connection_fd, const char* page)
         }
         strcpy(path, ROOT);
         strcpy(&path[strlen(ROOT)], page);
-        printf("file: %s\n", path);
         
         if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
         {
@@ -325,10 +320,6 @@ void *handle_request(void *param)
 
     // *******************
     
-	// send_file(fileAddress, new_sd);
-
-	// send_id = mySend(new_sd, QUIT ,100, 0);
-	// close(new_sd);
 	printf("Terminating worker thread\n\n");
 	return NULL;
 }
@@ -372,60 +363,6 @@ int createThreadPool(struct ThreadPoolManager *manager)
 	return 0;
 
 }
-
-
-//****************** SENDING FILE send_file function ******************//
-
-void send_file(char *fileName, int new_sd)
-{
-//     char data[1024] ;
-//     // char fileName[1024] ;
-    
-//     char temp[1024];
-    
-    
-//     int send_id;
-//     FILE *fileptr = NULL;
-//     fileptr = fopen(fileName, "rb"); // read binary mode
-//     if(!fileptr)
-//     {
-//         error("test.pdf could not open in binary mode");
-//         return ;
-//     }
-    
-//     // keep reading from the file until the file is complete
-//     while(fread(data, 1, 1000, fileptr) != NULL)
-//     {
-//         data[1023]='\0';
-//         send_id = write(new_sd, data ,1000);
-//         if(send_id == -1)
-//         {
-//             printf("Server. Could not send");
-//             perror("Server. Could not send");
-//             //			return 0;
-//         }
-        
-//     }
-//     int i=0;
-//     for(i=0 ; i<1024 ; i++)
-//         data[i] = '\0';
-//     send_id = write(new_sd, data ,1024);
-//     if(send_id == -1)
-//     {
-//         error("Server. Could not send");
-//         return ;
-//     }
-//     else
-//         printf("%s File Successfully Sent\n", fileName);
-    
-    
-//     fclose(fileptr);	// closing the file
-    
-    
-//     // close(s_id);	//closing the socket
-}
-
-
 
 
 
