@@ -16,7 +16,7 @@
 #include <netdb.h>// #include <conio.h>
 
 
-#define PORT_NO							5551
+#define PORT_NO							5560
 #define QUIT_CONNECTION 				"QUIT"
 #define NEW_CONNECTION 					"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
@@ -244,20 +244,26 @@ int main(int argc, char* argv[] )
        
 	// fd = socket_connect(argv[1], atoi(argv[2])); 
 	char hostname[1024] = "127.0.0.1";
-	char completeRequest[1024] = "GET /index.html HTTP/1.0\r\n\r\n";
+	char completeRequest[1024] = "GET / HTTP/1.0\r\n\r\n";
 	fd = socket_connect(hostname, PORT_NO); 
 	write(fd, completeRequest, strlen(completeRequest)); // write(fd, char[]*, len);  
 	bzero(buffer, BUFFER_SIZE);
 	
-	while(read(fd, buffer, BUFFER_SIZE - 1) != 0){
+    long totalBytesRead = 0;
+    long bytesRead = read(fd, buffer, BUFFER_SIZE - 1);
+	while(bytesRead != 0 && bytesRead != -1){
+        totalBytesRead += bytesRead;
 		fprintf(stderr, "%s", buffer);
 		bzero(buffer, BUFFER_SIZE);
+        bytesRead = read(fd, buffer, BUFFER_SIZE - 1);
 	}
+    
+    printf("Total bytes received from server : %ld\n", totalBytesRead);
 
 	shutdown(fd, SHUT_RDWR); 
 	close(fd); 
 
-return 0;
+    return 0;
 }
 
 
@@ -297,8 +303,8 @@ int socket_connect(char *host, in_port_t port){
 void create_required_threads() 
 {
 	int s_id;
-	char msg[100] =""; 
-	int msg_length = 100;
+//	char msg[100] =""; 
+//	int msg_length = 100;
 	struct sockaddr_in serv_addr;
 	s_id = socket (PF_INET,SOCK_STREAM,0);
 	if(s_id == -1)
@@ -319,6 +325,8 @@ void create_required_threads()
 		// return 0;
 	}		
 
+    
+    
 	// Yahan pay ziada saray threads bnanay hain
 	// us k baad har individual thread kaam karay ga.
 

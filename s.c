@@ -16,22 +16,35 @@
 #include <stdbool.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include<fcntl.h>
+#include<signal.h>
+#include<netdb.h>
 
-#define PORT_NO							5551
+
+#define PORT_NO							5560
 #define QUIT 							"QUIT"
 #define NEW_CONNECTION			 		"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
+#define BYTES                            1024
 
 pthread_cond_t cond[1024];
 pthread_mutex_t mutex[1024];
+char *ROOT;
 
 // MARK: - Response constants
 /* HTTP response and header for a successful request.  */
 
 static char* ok_response =
 "HTTP/1.0 200 OK\n"
-"Content-type: text/html\n"
-"\n";
+"Content-Type: text/html\n"
+"Content-Length: 200\n"
+"\n"
+"<html>\n"
+" <body>\n"
+"  <h1>Server</h1>\n"
+"  <p>This is the response from the server.</p>\n"
+" </body>\n"
+"</html>\n";
 
 /* HTTP response, header, and body indicating that the we didn't
  understand the request.  */
@@ -120,7 +133,7 @@ int main()
 //	char message1[1024] = "Thread1";
 //	char message2[1024] = "Thread2";
 	struct ThreadPoolManager tm;
-
+    ROOT = getenv("PWD");
 
 	int s_id;
 //	char msg[1024];
@@ -174,8 +187,10 @@ int main()
 
 static void handle_get (int connection_fd, const char* page)
 {
-    struct server_module* module = NULL;
-    
+//    struct server_module* module = NULL;
+    char path[2*1024], data_to_send[BYTES];
+    int fd;
+    long bytes_read;
     /* Make sure the requested page begins with a slash and does not
      contain any additional slashes -- we don't support any
      subdirectories.  */
@@ -184,35 +199,41 @@ static void handle_get (int connection_fd, const char* page)
         
         /* The page name looks OK.  Construct the module name by appending
          ".so" to the page name.  */
-        snprintf (module_file_name, sizeof (module_file_name),
-                  "%s.so", page + 1);
+//        snprintf (module_file_name, sizeof (module_file_name),
+//                  "%s.so", page + 1);
+        
+        if ( strncmp(page, "/\0", 2)==0 ) {
+            snprintf (module_file_name, sizeof ("/index.html"), "/index.html");
+            //Because if no file is specified, index.html will be opened by default
+        }
+        strcpy(path, ROOT);
+        strcpy(&path[strlen(ROOT)], page);
+        printf("file: %s\n", path);
+        
+        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+        {
+            write (connection_fd, ok_response, strlen (ok_response));
+            while ( (bytes_read=read(fd, data_to_send, BYTES-1))>0 )
+                write (connection_fd, data_to_send, bytes_read);
+        }
+        else {
+            /* Either the requested page was malformed, or we couldn't open a
+             module with the indicated name.  Either way, return the HTTP
+             response 404, Not Found.  */
+            char response[1024];
+            
+            /* Generate the response message.  */
+            snprintf (response, sizeof (response), not_found_response_template, page);
+            /* Send it to the client.  */
+            write (connection_fd, response, strlen (response));
+        }
+        
         /* Try to open the module.  */
 //        module = module_open (module_file_name);
     }
     
-    if (module == NULL) {
-        /* Either the requested page was malformed, or we couldn't open a
-         module with the indicated name.  Either way, return the HTTP
-         response 404, Not Found.  */
-        char response[1024];
-        
-        /* Generate the response message.  */
-        snprintf (response, sizeof (response), not_found_response_template, page);
-        /* Send it to the client.  */
-        write (connection_fd, response, strlen (response));
-    }
-    else {
-        /* The requested module was loaded successfully.  */
-        
-        /* Send the HTTP response indicating success, and the HTTP header
-         for an HTML page.  */
-        write (connection_fd, ok_response, strlen (ok_response));
-        /* Invoke the module, which will generate HTML output and send it
-         to the client file descriptor.  */
-//        (*module->generate_function) (connection_fd);
-        /* We're done with the module.  */
-//        module_close (module);
-    }
+    shutdown(connection_fd, SHUT_RDWR);
+    close(connection_fd);
 }
 
 //****************** WORKER THREAD handle_request function ******************//
@@ -230,9 +251,9 @@ void *handle_request(void *param)
 	}
 
 	int new_sd=threadDetails->socketId;
-	int recv_id=0;
-	int send_id=0;
-	char fileAddress[1024];
+//	int recv_id=0;
+//	int send_id=0;
+//	char fileAddress[1024];
 	char welcome[1024] = "***** Worker thread number : ";
 	printf("%s %d  *****\n", welcome, threadDetails->threadNumber);
 	
