@@ -1,0 +1,8 @@
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/obj/Debug/.NETFramework,Version=v4.5.2.AssemblyAttribute.cs
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/bin/Debug/ServerMachine.exe.config
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/bin/Debug/ServerMachine.exe.mdb
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/bin/Debug/ServerMachine.pdb
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/bin/Debug/ServerMachine.exe
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/obj/Debug/ServerMachine.exe
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/obj/Debug/ServerMachine.exe.mdb
+/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/obj/Debug/ServerMachine.pdb

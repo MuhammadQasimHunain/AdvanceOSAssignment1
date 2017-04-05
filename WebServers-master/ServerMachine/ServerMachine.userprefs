@@ -1,0 +1,16 @@
+﻿<Properties StartupConfiguration="{263307F2-6749-433A-8A25-D85A0F67F8D5}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ServerMachine/Program.cs">
+    <Files>
+      <File FileName="ServerMachine/Program.cs" Line="22" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.ServerMachine PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Volumes/Parhai/Parhai/LUMS/Semester 2 Spring17/Advanced Operating Systems/Assignments/WebServers-master/ServerMachine/ServerMachine/Program.cs" relfile="ServerMachine/Program.cs" line="21" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

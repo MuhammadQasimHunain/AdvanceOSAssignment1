@@ -16,7 +16,7 @@
 #include <netdb.h>// #include <conio.h>
 
 
-#define PORT_NO							5570
+#define PORT_NO							5569
 #define QUIT_CONNECTION 				"QUIT"
 #define NEW_CONNECTION 					"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"

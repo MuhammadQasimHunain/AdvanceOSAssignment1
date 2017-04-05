@@ -1,0 +1,18 @@
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.exe.config
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.exe
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.pdb
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.csprojResolveAssemblyReference.cache
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.Properties.Resources.resources
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.csproj.GenerateResource.Cache
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.exe
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.pdb
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.MainForm.resources
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.exe.config
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.exe
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.pdb
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.exe
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\bin\Debug\ClientMachine.pdb
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.csprojResolveAssemblyReference.cache
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.MainForm.resources
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.Properties.Resources.resources
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ClientMachine\ClientMachine\obj\Debug\ClientMachine.csproj.GenerateResource.Cache

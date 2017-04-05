@@ -1,0 +1,12 @@
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.exe.config
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.exe
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.pdb
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.exe
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.pdb
+C:\Users\HAK\Documents\Visual Studio 2015\Projects\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.csprojResolveAssemblyReference.cache
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.exe.config
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.exe
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.pdb
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\obj\Debug\ServerMachine.csprojResolveAssemblyReference.cache
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.exe
+C:\Users\IHDEV5\Documents\GitHub\WebServers\ServerMachine\ServerMachine\bin\Debug\ServerMachine.pdb

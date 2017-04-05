@@ -21,12 +21,12 @@
 #include<netdb.h>
 
 
-#define PORT_NO							5573
+#define PORT_NO							5569
 #define QUIT 							"QUIT"
 #define NEW_CONNECTION			 		"NEW-CONNECTION"
 #define FILE_SUCCESSFULLY_RECEIVED		"FILE-SUCCESSFULLY-RECEIVED"
 #define BYTES                           1024
-#define MAX_THREAD_COUNT                5
+#define MAX_THREAD_COUNT                10240
 
 pthread_cond_t cond[MAX_THREAD_COUNT];
 pthread_mutex_t mutex[MAX_THREAD_COUNT];
@@ -165,14 +165,7 @@ int main()
 		perror("pthread_cond_signal() error");
 		// exit(4);
 		}
-        else {
-            printf("Signal sent \n");
-        }
 		threadCount++;
-        
-        if (threadCount == MAX_THREAD_COUNT ) {
-            threadCount = 0;
-        }
 	// }
 
 	}
@@ -243,9 +236,6 @@ void *handle_request(void *param)
 		return NULL;
 	}
 
-    while (true) {
-        
-    
 	if (pthread_cond_wait(&cond[threadDetails->threadNumber], &mutex[threadDetails->threadNumber]) != 0) {
 	    perror("pthread_cond_timedwait() error");
 	}
@@ -327,16 +317,6 @@ void *handle_request(void *param)
     shutdown(new_sd, SHUT_RDWR);
     close(new_sd);
 
-        if (pthread_mutex_init(&mutex[threadDetails->threadNumber], NULL) != 0) {
-            perror("pthread_mutex_init() error");
-        }
-        if (pthread_cond_init(&cond[threadDetails->threadNumber], NULL) != 0) {
-            perror("pthread_cond_init() error");
-        }
-        if (pthread_mutex_lock(&mutex[threadDetails->threadNumber]) != 0) {
-            perror("pthread_mutex_lock() error");
-        }
-    } //while true
 	printf("Terminating worker thread no : %d\n\n", threadDetails->threadNumber);
 	return NULL;
 }
