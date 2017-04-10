@@ -1,9 +1,4 @@
-// For creating the response, some help and code has been taken
 
-
-#ifdef __APPLE__
-#  define error printf
-#endif
 
 #include <pthread.h>
 #include <unistd.h>
@@ -20,7 +15,7 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
+#include <sys/stat.h>        
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include "HeaderResponse.h"
@@ -30,19 +25,9 @@
 #include "queue.h"
 
 
-
-
-//void *handle_request(void *param);
-//void send_file(char *fileName, int new_sd);
 int createThreadPool(struct ThreadPoolManager *manager);
 
-//int getNextEmptyThreadNumber(struct ThreadPoolManager* poolManager, int nextThreadNumber, bool force);
-//void parse_command_line_arguments(int argc, char* argv[]);
-
-
-// MARK: - Main Function
-//****************** MAIN FUNCTION ******************//
-
+// Main
 int main(int argc, char* argv[] )
 {
     waitingRequestsQueue = newQueue();
@@ -54,9 +39,8 @@ int main(int argc, char* argv[] )
     struct sockaddr_in my_addr, remote_addr;
     s_id = socket(PF_INET, SOCK_STREAM, 0);
     my_addr.sin_family = AF_INET;
-    my_addr.sin_port = htons(PROXY_SERVER_PORT_NO);	//assigning the port
-    my_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	//assigning the self ip address
-    
+    my_addr.sin_port = htons(ProxyPortNo);
+    my_addr.sin_addr.s_addr = inet_addr(ProxyIpAddress);
     if(bind(s_id, (struct sockaddr*)&my_addr, sizeof(my_addr) ) == -1) {
         error("Server failed to bind\n");
         exit(2);
@@ -80,12 +64,12 @@ int main(int argc, char* argv[] )
             queue_offer(waitingRequestsQueue, &new_sd);
             continue;
         }
-        tm.threadArr[threadCount].socketId = new_sd;
-        if (pthread_cond_signal(&cond[threadCount]) != 0) {
+        tm.ThreadArray[threadCount].SocketId = new_sd;
+        if (pthread_cond_signal(&Condition[threadCount]) != 0) {
             perror("pthread_cond_signal() error");
         }
         threadCount++;
-        if (threadCount >= MAX_THREAD_COUNT) {
+        if (threadCount >= MaxNumberOfThred) {
             threadCount = 0;
         }
     }
@@ -93,20 +77,21 @@ int main(int argc, char* argv[] )
     return 0;
 }
 
-//****************** THREAD MANAGEMENT ******************//
+//Creating Thread Pool
+
 
 int createThreadPool(struct ThreadPoolManager *manager)
 {
-    for(int i=0 ; i < MAX_THREAD_COUNT ; i++)
+    for(int i=0 ; i < MaxNumberOfThred ; i++)
     {
-        if (pthread_mutex_init(&mutex[i], NULL) != 0) {
-            perror("pthread_mutex_init() error");
+        if (pthread_mutex_init(&Mutex[i], NULL) != 0) {
+            perror("Throw pthread_mutex_init() Exception");
         }
-        if (pthread_cond_init(&cond[i], NULL) != 0) {
-            perror("pthread_cond_init() error");
+        if (pthread_cond_init(&Condition[i], NULL) != 0) {
+            perror("Throw pthread_cond_init() Exception");
         }
-        if (pthread_mutex_lock(&mutex[i]) != 0) {
-            perror("pthread_mutex_lock() error");
+        if (pthread_mutex_lock(&Mutex[i]) != 0) {
+            perror("Throw pthread_mutex_lock() Exception");
         }
     }
     pthread_attr_t attr;
@@ -114,12 +99,12 @@ int createThreadPool(struct ThreadPoolManager *manager)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     
-    struct Thread *threadPool = manager->threadArr;
-    threadPool[0].threadId = 0;
+    struct Thread *threadPool = manager->ThreadArray;
+    threadPool[0].ThreadID = 0;
     
-    for(int i=0 ; i < MAX_THREAD_COUNT ; i++) {
-        threadPool[i].threadNumber = i;
-        if (pthread_create(&threadPool[i].threadId, &attr, handle_request, (void*) &threadPool[i]) != 0) {
+    for(int i=0 ; i < MaxNumberOfThred ; i++) {
+        threadPool[i].ThreadNo = i;
+        if (pthread_create(&threadPool[i].ThreadID, &attr, handle_request, (void*) &threadPool[i]) != 0) {
             printf("Cannot create %d th thread\n", i+1);
         }
         else {

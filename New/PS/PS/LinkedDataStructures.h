@@ -13,51 +13,47 @@
 #include "queue.h"
 
 
-// MARK: - Constants
-
-#define PROXY_SERVER_PORT_NO		5746
-#define SERVER_PORT_NO				PROXY_SERVER_PORT_NO + 100
-#define LOCAL_GET                   "LOCAL-GET"
-#define BYTES                       1024
-#define MAX_THREAD_COUNT            10
-#define BUFFER_SIZE                 1024
-#define SEGMENT_SIZE                10
-#define FTOK_KEY                    "/FileToken"
+#define ProxyPortNo             5746
+#define ServerPortNo			ProxyPortNo + 100
+#define LocalGet                "LOCAL-GET"
+#define BYTES                   1024
+#define MaxNumberOfThred        10
+#define BufferLength            1024
+#define SegmentLength           10
+#define FileTokenKey            "/FileToken"
+#define ProxyIpAddress          "127.0.0.1"
 
 // MARK: - Global Variables
 
 bool SHOULD_USE_SHARED_MEMORY = false;
-pthread_cond_t cond[MAX_THREAD_COUNT];
-pthread_mutex_t mutex[MAX_THREAD_COUNT];
+pthread_cond_t Condition[MaxNumberOfThred];
+pthread_mutex_t Mutex[MaxNumberOfThred];
 char *ROOT;
 Queue *waitingRequestsQueue;
 
 
-// MARK: - Data Structures
-
-
 struct Thread
 {
-    pthread_t threadId;
-    int threadNumber;
-    bool isFree;
-    int socketId; // client say iss socketID pay rabta krna hay
+    pthread_t ThreadID;
+    int ThreadNo;
+    bool IsFree; // If THe Thread Is Free
+    int SocketId; // Comunicate to client via Socket
 };
 
 struct ThreadPoolManager
 {
-    struct Thread threadArr[MAX_THREAD_COUNT];
-    int totalThreadCount;
+    struct Thread ThreadArray[MaxNumberOfThred];
+    int NumberOfThread;
 };
 
 struct SharedMemory
 {
-    pthread_cond_t cond;
-    pthread_mutex_t mutex;
-    pthread_condattr_t condAttr;
-    pthread_mutexattr_t mutexAttr;
+    pthread_cond_t Condition;
+    pthread_mutex_t Mutex;
+    pthread_condattr_t ConditionAttribute;
+    pthread_mutexattr_t MutexAttribute;
     bool hasFileCompletelyWritten;
-    char data[BUFFER_SIZE];
+    char data[BufferLength];
 };
 
 

@@ -15,15 +15,6 @@ static char* ok_response =
 "HTTP/1.0 200 OK\n"
 "Content-Type: text/html\n"
 "\n";
-//"<html>\n"
-//" <body>\n"
-//"  <h1>Server</h1>\n"
-//"  <p>This is the response from the server.</p>\n"
-//" </body>\n"
-//"</html>\n";
-
-/* HTTP response, header, and body indicating that the we didn't
- understand the request.  */
 
 static char* bad_request_response =
 "HTTP/1.0 400 Bad Request\n"
@@ -36,9 +27,7 @@ static char* bad_request_response =
 " </body>\n"
 "</html>\n";
 
-/* HTTP response, header, and body template indicating that the
- requested document was not found.  */
-
+// basic not found request
 static char* not_found_response_template =
 "HTTP/1.0 404 Not Found\n"
 "Content-type: text/html\n"
@@ -50,8 +39,7 @@ static char* not_found_response_template =
 " </body>\n"
 "</html>\n";
 
-/* HTTP response, header, and body template indicating that the
- method was not understood.  */
+// basic bad request
 
 static char* bad_method_response_template =
 "HTTP/1.0 501 Method Not Implemented\n"

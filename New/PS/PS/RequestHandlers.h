@@ -12,31 +12,27 @@
 #include <time.h>
 
 
-//****************** HANDLE GET REQUEST Via SHARED MEMORY function ******************//
+//HANDLE GET REQUEST Via SHARED MEMORY function //
 
 static void handle_get_with_shared_memory (int connection_fd, const char* proxyBaseUrl, const char* page)
 {
     char data_to_send[BYTES];
     int fd;
     long bytes_read;
-    /* Make sure the requested page begins with a slash and does not
-     contain any additional slashes -- we don't support any
-     subdirectories.  */
+    // The file will start with single slash when seprated from server host address
     if (*page == '/' && strchr (page + 1, '/') == NULL) {
         char file_name[1024];
         
         
         if ( strncmp(page, "/\0", 2)==0 ) {
             snprintf (file_name, sizeof ("index.html"), "index.html");
-            //Because if no file is specified, index.html will be opened by default
+            //Index.html is by default
         }
         else {
             snprintf (file_name, sizeof (file_name), "%s", page);
             // removing the "/" on the first index
             memmove (file_name, file_name+1, strlen (file_name+1) + 1);
         }
-        //        strcpy(path, ROOT);
-        //        strcpy(&path[strlen(ROOT)], page);
         
         if ( (fd=open(file_name, O_RDONLY))!=-1 )    //FILE FOUND
         {
@@ -45,97 +41,78 @@ static void handle_get_with_shared_memory (int connection_fd, const char* proxyB
                 write (connection_fd, data_to_send, bytes_read);
         }
         else {
-            /* Either the requested page was malformed, or we couldn't open a
-             module with the indicated name.  Either way, return the HTTP
-             response 404, Not Found.  */
+            // return 404 if the file is not found or file is corrupt.
             char response[1024];
             
-            /* Generate the response message.  */
+            //Creating response message
             snprintf (response, sizeof (response), not_found_response_template, page);
-            /* Send it to the client.  */
-            //            write (connection_fd, response, strlen (response));
-            
-            // *********
-            
             key_t key;
             int   shmid;
             struct SharedMemory* segptr;
-            
-            //            char charId[30];
-            //            sprintf(charId, "%d", connection_fd+1000);
-            /* Create unique key via call to ftok() */
-            key = ftok("/Users/Hassaan/Desktop/ftok.txt", connection_fd);
+            // Creating unique key via File token request
+            key = ftok("/Users/ArhamSoft/Desktop/FileToken.txt", connection_fd);
             //            key = ftok(FTOK_KEY, 'S');
             
-            if((shmid = shmget(key, SEGMENT_SIZE, IPC_CREAT|IPC_EXCL|0666)) == -1) {
-                printf("Shared memory segment exists - opening as client\n");
-                
-                /* Segment probably already exists - try as a client */
-                if((shmid = shmget(key, SEGMENT_SIZE, 0)) == -1) {
-                    perror("shmget");
+            if((shmid = shmget(key, SegmentLength, IPC_CREAT|IPC_EXCL|0666)) == -1) {
+                printf("Duplicating segment trying as a client\n");
+                // Duplicating segment try as a client.
+                if((shmid = shmget(key, SegmentLength, 0)) == -1) {
+                    perror("Throw shmget exception");
                     exit(1);
                 }
             }
             else {
                 printf("Creating new shared memory segment\n");
             }
-            /* Attach (map) the shared memory segment into the current process */
+            //Connect shared memeory to current runnning thread.
             (segptr = (struct SharedMemory *)shmat(shmid, 0, 0));
             if( segptr == (struct SharedMemory*)-1) {
-                perror("shmat() attaching error");
+                perror("Throw shmat() attaching Exception");
                 exit(1);
             }
             
-            if (pthread_mutexattr_init(&segptr->mutexAttr) != 0) {
-                perror("pthread_mutexattr_init() error");
+            if (pthread_mutexattr_init(&segptr->MutexAttribute) != 0) {
+                perror("Throw pthread_mutexattr_init() Exception");
             }
-            if (pthread_mutexattr_setpshared(&segptr->mutexAttr, PTHREAD_PROCESS_SHARED) != 0) {
-                perror("pthread_mutexattr_setpshared() error");
+            if (pthread_mutexattr_setpshared(&segptr->MutexAttribute, PTHREAD_PROCESS_SHARED) != 0) {
+                perror("Throw pthread_mutexattr_setpshared() Exception");
             }
-            if (pthread_condattr_init(&segptr->condAttr) != 0) {
-                perror("pthread_condattr_init error ");
+            if (pthread_condattr_init(&segptr->ConditionAttribute) != 0) {
+                perror("Throw pthread_condattr_init Exception ");
             }
-            if (pthread_condattr_setpshared(&segptr->condAttr, PTHREAD_PROCESS_SHARED) != 0) {
-                perror("pthread_condattr_setpshared() error");
+            if (pthread_condattr_setpshared(&segptr->ConditionAttribute, PTHREAD_PROCESS_SHARED) != 0) {
+                perror("Throw pthread_condattr_setpshared() Exception");
             }
-            if (pthread_cond_init(&segptr->cond, &segptr->condAttr) != 0) {
-                perror("pthread_cond_init() error");
+            if (pthread_cond_init(&segptr->Condition, &segptr->ConditionAttribute) != 0) {
+                perror("Throw pthread_cond_init() Exception");
             }
-            if (pthread_mutex_init(&segptr->mutex, &segptr->mutexAttr) != 0) {
-                perror("pthread_mutexattr_init() error");
+            if (pthread_mutex_init(&segptr->Mutex, &segptr->MutexAttribute) != 0) {
+                perror("Throw pthread_mutexattr_init() Exception");
             }
-            if (pthread_mutex_lock(&segptr->mutex) != 0) {
-                perror("pthread_mutex_lock() error");
+            if (pthread_mutex_lock(&segptr->Mutex) != 0) {
+                perror("Throw pthread_mutex_lock() Exception");
             }
-            
-            
-            //            strcpy(segptr->data, "Hello shared memory !");
-            
-            
-            //***********
-            
-            ///// ***********
             
             const char *hostname = proxyBaseUrl;
             struct hostent *hp;
             struct sockaddr_in addr;
             int on = 1;
-            int sd; // Socket descriptor that would be used to communicate with the server
+            int sd; // Socket to connect with the descriptior
             
             if((hp = gethostbyname(hostname)) == NULL){
-                herror("gethostbyname");
+                herror("Throw gethostbyname Exception");
                 exit(1);
             }
             printf("%s\n",hp->h_name );
             bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
-            addr.sin_port = htons(SERVER_PORT_NO);
+            addr.sin_port = htons(ServerPortNo);
             addr.sin_family = AF_INET;
             
             sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
             setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
             
             if(sd == -1){
-                perror("setsockopt");
+                perror("Throw setsockopt Exception");
                 return;
             }
             if(connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1){
@@ -145,7 +122,7 @@ static void handle_get_with_shared_memory (int connection_fd, const char* proxyB
                 return;
             }
             
-            char buffer[BUFFER_SIZE];
+            char buffer[BufferLength];
             char completeRequest[1024] = "LOCAL-GET /index.html HTTP/1.0";
             
             strcat(completeRequest, "\r\n&key=");
@@ -156,47 +133,35 @@ static void handle_get_with_shared_memory (int connection_fd, const char* proxyB
             strcat(completeRequest, "\r\n\r\n");
             
             write(sd, completeRequest, strlen(completeRequest));
-            bzero(buffer, BUFFER_SIZE);
-            
-            //            long totalBytesRead = 0;
-            //            long bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
-            //            while(bytesRead != 0 && bytesRead != -1){
-            //                write (connection_fd, buffer, BUFFER_SIZE - 1); // send data back to client
-            //                totalBytesRead += bytesRead;
-            //                //                    fprintf(stderr, "%s", buffer);
-            //                bzero(buffer, BUFFER_SIZE);
-            //                bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
-            //            }
-            //
-            //            printf("Total bytes received : %ld\n", totalBytesRead);
-            
+            bzero(buffer, BufferLength);
             shutdown(sd, SHUT_RDWR);
             close(sd);
             
-            struct timeval tv;
-            struct timespec ts;
-            gettimeofday(&tv, NULL);
-            ts.tv_sec = tv.tv_sec + 2;
-            ts.tv_nsec = 0;
-            if (pthread_cond_timedwait(&segptr->cond, &segptr->mutex, &ts) != 0) {
-                perror("pthread_cond_timedwait() error");
+            struct timeval TimeValue;
+            struct timespec TimeSpec;
+            gettimeofday(&TimeValue, NULL);
+            TimeSpec.tv_sec = TimeValue.tv_sec + 2;
+            TimeSpec.tv_nsec = 0;
+            if (pthread_cond_timedwait(&segptr->Condition, &segptr->Mutex, &TimeSpec) != 0) {
+                perror("Throw pthread_cond_timedwait() Exception");
             }
             send(connection_fd, segptr->data, strlen(segptr->data), 0); // read once the data is written
             
-            pthread_mutex_unlock(&segptr->mutex);
+            pthread_mutex_unlock(&segptr->Mutex);
             struct shmid_ds buff;
             if (shmctl(shmid, IPC_STAT, &buff) == -1) {
                 perror("shmctl() error with IPC_STAT");
             }
-            if (shmctl(shmid, IPC_RMID, &buff) == -1) // remove the shared memory segment
+            if (shmctl(shmid, IPC_RMID, &buff) == -1)
             {
-                perror("shmctl() error");
+                // remove the shared memory segment
+                perror("Throw shmctl() Exception");
             }
             if (shmdt(segptr) == -1) {
-                perror("shmdt() error");
+                perror("Throw shmdt() Exception");
             }
             else {
-                printf("Deleting shared memory segment\n");
+                printf("Discard shared Memory\n");
             }
             
             
@@ -239,18 +204,11 @@ static void handle_get_with_sockets (int connection_fd, const char* proxyBaseUrl
                 write (connection_fd, data_to_send, bytes_read);
         }
         else {
-            /* Either the requested page was malformed, or we couldn't open a
-             module with the indicated name.  Either way, return the HTTP
-             response 404, Not Found.  */
+            //Return 404 if the file is corupted or not found.
             char response[1024];
             
             /* Generate the response message.  */
             snprintf (response, sizeof (response), not_found_response_template, page);
-            /* Send it to the client.  */
-            //            write (connection_fd, response, strlen (response));
-            
-            
-            ///// ***********
             
             const char *hostname = proxyBaseUrl;
             struct hostent *hp;
@@ -264,7 +222,7 @@ static void handle_get_with_sockets (int connection_fd, const char* proxyBaseUrl
             }
             printf("%s\n",hp->h_name );
             bcopy(hp->h_addr, &addr.sin_addr, hp->h_length);
-            addr.sin_port = htons(SERVER_PORT_NO);
+            addr.sin_port = htons(ServerPortNo);
             addr.sin_family = AF_INET;
             
             sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -281,20 +239,20 @@ static void handle_get_with_sockets (int connection_fd, const char* proxyBaseUrl
                 return;
             }
             
-            char buffer[BUFFER_SIZE];
+            char buffer[BufferLength];
             char completeRequest[1024] = "GET /index.html HTTP/1.0\r\n\r\n";
             
             write(sd, completeRequest, strlen(completeRequest));
-            bzero(buffer, BUFFER_SIZE);
+            bzero(buffer, BufferLength);
             
             long totalBytesRead = 0;
-            long bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
+            long bytesRead = read(sd, buffer, BufferLength - 1);
             while(bytesRead != 0 && bytesRead != -1){
-                write (connection_fd, buffer, BUFFER_SIZE - 1); // send data back to client
+                write (connection_fd, buffer, BufferLength - 1); // send data back to client
                 totalBytesRead += bytesRead;
                 //                    fprintf(stderr, "%s", buffer);
-                bzero(buffer, BUFFER_SIZE);
-                bytesRead = read(sd, buffer, BUFFER_SIZE - 1);
+                bzero(buffer, BufferLength);
+                bytesRead = read(sd, buffer, BufferLength - 1);
             }
             
             printf("Total bytes received : %ld\n", totalBytesRead);
@@ -310,8 +268,7 @@ static void handle_get_with_sockets (int connection_fd, const char* proxyBaseUrl
     
 }
 
-//****************** WORKER THREAD handle_request function ******************//
-
+//WORKER THREAD handle_request function
 void *handle_request(void *param)
 {
     struct Thread *threadDetails = (struct Thread*)param;
@@ -322,17 +279,17 @@ void *handle_request(void *param)
     
     while (true) {
         
-        threadDetails->isFree = true;
-        if (pthread_cond_wait(&cond[threadDetails->threadNumber], &mutex[threadDetails->threadNumber]) != 0) {
+        threadDetails->IsFree = true;
+        if (pthread_cond_wait(&Condition[threadDetails->ThreadNo], &Mutex[threadDetails->ThreadNo]) != 0) {
             perror("pthread_cond_timedwait() error");
         }
         
     ReloadPendingRequest:
-        threadDetails->isFree = false;
+        threadDetails->IsFree = false;
         
-        int new_sd=threadDetails->socketId;
+        int new_sd=threadDetails->SocketId;
         char welcome[1024] = "***** Worker thread number : ";
-        printf("%s %d  *****\n", welcome, threadDetails->threadNumber);
+        printf("%s %d  *****\n", welcome, threadDetails->ThreadNo);
         
         
         ///*******************
@@ -417,8 +374,6 @@ void *handle_request(void *param)
             }
         }
         else if (bytes_read == 0)
-        /* The client closed the connection before sending any data.
-         Nothing to do.  */
             ;
         else
         /* The call to read failed.  */
@@ -430,26 +385,26 @@ void *handle_request(void *param)
         
         if (!queue_isEmpty(waitingRequestsQueue)) {
             int *socketID = (int*) queue_poll(waitingRequestsQueue);
-            threadDetails->socketId = *socketID;
+            threadDetails->SocketId = *socketID;
             goto ReloadPendingRequest;
             
         }
         else {
-            if (pthread_mutex_init(&mutex[threadDetails->threadNumber], NULL) != 0) {
-                perror("pthread_mutex_init() error");
+            if (pthread_mutex_init(&Mutex[threadDetails->ThreadNo], NULL) != 0) {
+                perror("Throw pthread_mutex_init() Exception");
             }
-            if (pthread_cond_init(&cond[threadDetails->threadNumber], NULL) != 0) {
-                perror("pthread_cond_init() error");
+            if (pthread_cond_init(&Condition[threadDetails->ThreadNo], NULL) != 0) {
+                perror("Throw pthread_cond_init() Exception");
             }
-            if (pthread_mutex_lock(&mutex[threadDetails->threadNumber]) != 0) {
-                perror("pthread_mutex_lock() error");
+            if (pthread_mutex_lock(&Mutex[threadDetails->ThreadNo]) != 0) {
+                perror("Throw pthread_mutex_lock() Exception");
             }
         }
         
         
     }
     
-    printf("Terminating worker thread no : %d\n\n", threadDetails->threadNumber);
+    printf("Terminating worker thread no : %d\n\n", threadDetails->ThreadNo);
     return NULL;
 }
 
