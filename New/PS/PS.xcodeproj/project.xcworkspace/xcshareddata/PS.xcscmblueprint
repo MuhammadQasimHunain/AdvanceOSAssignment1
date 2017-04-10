@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "420A774F6D4EA456C20DA6C3697F739F2C80F2CF",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "420A774F6D4EA456C20DA6C3697F739F2C80F2CF" : 9223372036854775807,
+    "DCD39CD11C1E36771E0AB43AB08C03EF0931FF9B" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "6753B614-6568-4FB3-BB6C-F021AD691F9B",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "420A774F6D4EA456C20DA6C3697F739F2C80F2CF" : "AdvanceOSAssignment1\/",
+    "DCD39CD11C1E36771E0AB43AB08C03EF0931FF9B" : "AdvanceOSAssignment1\/New\/PS\/PS\/AOSAssingnment2\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "PS",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "New\/PS\/PS.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/MuhammadQasimHunain\/AdvanceOSAssignment1.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "420A774F6D4EA456C20DA6C3697F739F2C80F2CF"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/MuhammadQasimHunain\/AOSAssingnment2.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DCD39CD11C1E36771E0AB43AB08C03EF0931FF9B"
+    }
+  ]
+}

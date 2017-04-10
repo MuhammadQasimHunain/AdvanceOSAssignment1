@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		861BEB541E9BC81600F149FD /* queue.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 861BEB441E9BC81600F149FD /* queue.o */; };
+		861BEB5A1E9BC92C00F149FD /* ps.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 861BEB591E9BC92C00F149FD /* ps.o */; };
 		86DCE53F1E968D7E008A27C7 /* ps.c in Sources */ = {isa = PBXBuildFile; fileRef = 86DCE53E1E968D7E008A27C7 /* ps.c */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +25,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		861BEA571E9BB83300F149FD /* HeaderResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeaderResponse.h; sourceTree = "<group>"; };
+		861BEA581E9BB8EE00F149FD /* LinkedDataStructures.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LinkedDataStructures.h; sourceTree = "<group>"; };
+		861BEB2D1E9BBCA900F149FD /* RequestHandlers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestHandlers.h; sourceTree = "<group>"; };
+		861BEB331E9BC5A900F149FD /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = queue.h; sourceTree = "<group>"; };
+		861BEB441E9BC81600F149FD /* queue.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = queue.o; sourceTree = "<group>"; };
+		861BEB591E9BC92C00F149FD /* ps.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = ps.o; sourceTree = "<group>"; };
 		86DCE5341E968D62008A27C7 /* PS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PS; sourceTree = BUILT_PRODUCTS_DIR; };
 		86DCE53E1E968D7E008A27C7 /* ps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ps.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -32,12 +40,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				861BEB5A1E9BC92C00F149FD /* ps.o in Frameworks */,
+				861BEB541E9BC81600F149FD /* queue.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		861BEB1A1E9BB9F100F149FD /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				861BEB331E9BC5A900F149FD /* queue.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		861BEB381E9BC81600F149FD /* CrossCompilations */ = {
+			isa = PBXGroup;
+			children = (
+				861BEB591E9BC92C00F149FD /* ps.o */,
+				861BEB441E9BC81600F149FD /* queue.o */,
+			);
+			path = CrossCompilations;
+			sourceTree = "<group>";
+		};
 		86DCE52B1E968D62008A27C7 = {
 			isa = PBXGroup;
 			children = (
@@ -57,7 +84,12 @@
 		86DCE5361E968D62008A27C7 /* PS */ = {
 			isa = PBXGroup;
 			children = (
+				861BEB381E9BC81600F149FD /* CrossCompilations */,
+				861BEA571E9BB83300F149FD /* HeaderResponse.h */,
 				86DCE53E1E968D7E008A27C7 /* ps.c */,
+				861BEA581E9BB8EE00F149FD /* LinkedDataStructures.h */,
+				861BEB1A1E9BB9F100F149FD /* Headers */,
+				861BEB2D1E9BBCA900F149FD /* RequestHandlers.h */,
 			);
 			path = PS;
 			sourceTree = "<group>";
@@ -246,6 +278,7 @@
 				86DCE53D1E968D62008A27C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

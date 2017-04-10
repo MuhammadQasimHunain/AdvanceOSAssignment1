@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		86DCE50E1E968C57008A27C7 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 86DCE50D1E968C57008A27C7 /* main.c */; };
+		861BEB371E9BC7D800F149FD /* queue.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 861BEB361E9BC7D800F149FD /* queue.o */; };
 		86DCE5151E968C7D008A27C7 /* s.c in Sources */ = {isa = PBXBuildFile; fileRef = 86DCE5141E968C7D008A27C7 /* s.c */; };
 /* End PBXBuildFile section */
 
@@ -24,8 +24,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		861BEB311E9BC2DA00F149FD /* LinkedDataStructures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkedDataStructures.h; sourceTree = "<group>"; };
+		861BEB321E9BC37600F149FD /* HeaderResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeaderResponse.h; sourceTree = "<group>"; };
+		861BEB341E9BC61300F149FD /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = queue.h; sourceTree = "<group>"; };
+		861BEB361E9BC7D800F149FD /* queue.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = queue.o; sourceTree = "<group>"; };
 		86DCE50A1E968C57008A27C7 /* Server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Server; sourceTree = BUILT_PRODUCTS_DIR; };
-		86DCE50D1E968C57008A27C7 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		86DCE5141E968C7D008A27C7 /* s.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -34,12 +37,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				861BEB371E9BC7D800F149FD /* queue.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		861BEB351E9BC7B400F149FD /* CrossPlatformFiles */ = {
+			isa = PBXGroup;
+			children = (
+				861BEB361E9BC7D800F149FD /* queue.o */,
+			);
+			name = CrossPlatformFiles;
+			sourceTree = "<group>";
+		};
 		86DCE5011E968C57008A27C7 = {
 			isa = PBXGroup;
 			children = (
@@ -59,8 +71,11 @@
 		86DCE50C1E968C57008A27C7 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				861BEB351E9BC7B400F149FD /* CrossPlatformFiles */,
+				861BEB341E9BC61300F149FD /* queue.h */,
+				861BEB321E9BC37600F149FD /* HeaderResponse.h */,
+				861BEB311E9BC2DA00F149FD /* LinkedDataStructures.h */,
 				86DCE5141E968C7D008A27C7 /* s.c */,
-				86DCE50D1E968C57008A27C7 /* main.c */,
 			);
 			path = Server;
 			sourceTree = "<group>";
@@ -122,7 +137,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				86DCE50E1E968C57008A27C7 /* main.c in Sources */,
 				86DCE5151E968C7D008A27C7 /* s.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -250,6 +264,7 @@
 				86DCE5131E968C57008A27C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
