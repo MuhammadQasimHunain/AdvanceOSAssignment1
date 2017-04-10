@@ -1,3 +1,11 @@
+//
+//  c.h
+//  Client
+//
+//  Created by Apple PC on 10/04/2017.
+//  Copyright © 2017 ArhamSoft. All rights reserved.
+//
+
 #ifdef __APPLE__
 #  define error printf
 #endif
@@ -43,8 +51,8 @@ int main(int argc, char* argv[] )
     int requestsPerThread = 0;
     //
     parse_command_line_arguments(argc, argv, &totalThreads, &requestsPerThread);
-    printf("The number of threads : %d\n", totalThreads);
-    printf("The number of requests per thread : %d\n", requestsPerThread);
+    printf("No of threads : %d\n", totalThreads);
+    printf("Request per thread : %d\n", requestsPerThread);
     
     // fd = socket_connect(argv[1], atoi(argv[2]));
     char hostname[1024] = ProxyIpAddress;
@@ -54,7 +62,8 @@ int main(int argc, char* argv[] )
     int sd; // Socket descriptor that would be used to communicate with the server
     
     if((hp = gethostbyname(hostname)) == NULL){
-        herror("gethostbyname");
+         // Host name
+        herror("Host name Error at gethostname");
         exit(1);
     }
     printf("%s\n",hp->h_name );
@@ -68,13 +77,11 @@ int main(int argc, char* argv[] )
         setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
         
         if(sd == -1){
-            perror("setsockopt");
-            //            exit(1);
+            perror("setsockopt : Setting Socke operation");
             continue;
         }
         if(connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) == -1){
-            perror("error on connect... \nSkipping");
-            //            exit(1);
+            perror("error on connect.. - Connection error -. \nSkipping");
             continue;
         }
         
@@ -90,11 +97,53 @@ int main(int argc, char* argv[] )
         pthread_join(allThreads[i], NULL);
     }
     
-    printf("Exitting from main thread");
+    printf("Main thread is exiting");
     
     return 0;
 }
 
+
+void parse_command_line_arguments(int argc, char* argv[], int *totalThreads, int *requestsPerThread )
+{
+    
+    //Parsing the command line arguments
+    if( argc == 3 ) {
+        *totalThreads = atoi(argv[1]);
+        *requestsPerThread = atoi(argv[2]);
+    }
+    else {
+        fprintf(stderr, "Use : %s <Total-number-threads> <Number-Requests-per-thread>\n", argv[0]);
+        exit(1);
+    }
+}
+
+
+//HELPER FUNCTIONS
+
+void create_required_threads()
+{
+    int s_id;
+    struct sockaddr_in serv_addr;
+    s_id = socket (PF_INET,SOCK_STREAM,0);
+    if(s_id == -1)
+    {
+        perror("Cant assign sockets");
+        // return 0;
+    }
+    
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_port = htons (ProxyPortNo);
+    serv_addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
+    
+    // Connect Using the accept function
+    int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
+    if(connect_id == -1)
+    {
+        error("Client. Could not Connect ");
+        // return 0;
+    }
+    
+}
 
 //Making a request
 void *make_request(void *param)
@@ -105,14 +154,14 @@ void *make_request(void *param)
     }
     int sd = details->socket_id;
     char buffer[BufferLength];
-    //    char completeRequest[1024] = "GET /index.html HTTP/1.0\r\n\r\n";
+    
     char completeRequest[1024] = "GET ";
     strcat(completeRequest, ProxyIpAddress);
     strcat(completeRequest, " 127.0.0.1/index.html");
     strcat(completeRequest, " HTTP/1.0");
     
     
-    strcat(completeRequest, "\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:52.0) Gecko/20100101 Firefox/52.0");
+    strcat(completeRequest, "\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11.6; rv:52.0) Gecko/20100101 Firefox/52.0");
     strcat(completeRequest, "\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
     strcat(completeRequest, "\r\nConnection: keep-alive");
     strcat(completeRequest, "\r\n\r\n");
@@ -139,56 +188,3 @@ void *make_request(void *param)
     return NULL;
 }
 
-//****************** HELPER FUNCTIONS ******************//
-
-void create_required_threads()
-{
-    int s_id;
-    //	char msg[100] ="";
-    //	int msg_length = 100;
-    struct sockaddr_in serv_addr;
-    s_id = socket (PF_INET,SOCK_STREAM,0);
-    if(s_id == -1)
-    {
-        perror("Client. Could not Assign Socket");
-        // return 0;
-    }
-    
-    serv_addr.sin_family=AF_INET;
-    serv_addr.sin_port = htons (ProxyPortNo);
-    serv_addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
-    
-    // requesting to connect using the accept function
-    int connect_id=connect(s_id,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr));
-    if(connect_id == -1)
-    {
-        error("Client. Could not Connect ");
-        // return 0;
-    }
-    
-    
-    
-    // Yahan pay ziada saray threads bnanay hain
-    // us k baad har individual thread kaam karay ga.
-    
-    // struct Details *myDetails = malloc (sizeof(struct Details));
-    // myDetails->send_id = s_id;
-    // int rv1 = pthread_create(&threads[threadCount++], NULL, handle_request, (void*) myDetails);
-    
-}
-
-
-void parse_command_line_arguments(int argc, char* argv[], int *totalThreads, int *requestsPerThread )
-{
-    
-    //    char c;    
-    //Parsing the command line arguments
-    if( argc == 3 ) {
-        *totalThreads = atoi(argv[1]);
-        *requestsPerThread = atoi(argv[2]);
-    }
-    else {
-        fprintf(stderr, "Usage : %s <Total-threads> <Requests-per-thread>\n", argv[0]);
-        exit(1);
-    }
-}
